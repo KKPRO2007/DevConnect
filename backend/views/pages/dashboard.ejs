@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %></title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <%- include("../partials/navbar") %>
+    <main class="container">
+      <section class="hero">
+        <p class="eyebrow">Server-side rendered preview</p>
+        <h1>Developer stories, shipped cleanly.</h1>
+        <p>Use the REST API for your real frontend and these EJS pages for learning SSR.</p>
+      </section>
+
+      <section class="post-grid">
+        <% posts.forEach(function(post) { %>
+          <article class="card">
+            <p class="meta">By <%= post.author ? post.author.name : "Unknown" %></p>
+            <h2><%= post.title %></h2>
+            <p><%= post.excerpt || post.content.slice(0, 140) %></p>
+            <a href="/posts/<%= post._id %>/view">Read more</a>
+          </article>
+        <% }) %>
+      </section>
+    </main>
+    <%- include("../partials/footer") %>
+  </body>
+</html>

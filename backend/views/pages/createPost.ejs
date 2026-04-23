@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %></title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <%- include("../partials/navbar") %>
+    <main class="container auth-page">
+      <section class="card">
+        <h1>Create post</h1>
+        <p>This form posts directly to the protected API. Use a token-enabled client for full auth flow.</p>
+        <form class="stack">
+          <input type="text" placeholder="Title" />
+          <textarea placeholder="Content"></textarea>
+          <input type="text" placeholder="Tags (comma separated)" />
+          <button type="button">Create with API client</button>
+        </form>
+      </section>
+    </main>
+    <%- include("../partials/footer") %>
+  </body>
+</html>
