@@ -1,7 +1,8 @@
 function getApiUrl() {
   const configuredUrl = import.meta.env.VITE_API_URL?.trim();
   if (configuredUrl) {
-    return configuredUrl.replace(/\/+$/, "");
+    const normalized = configuredUrl.replace(/\/+$/, "");
+    return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
   }
 
   if (typeof window !== "undefined") {
