@@ -65,7 +65,7 @@ function DashboardPage() {
         <div className="dash-title-block">
           <span className="eyebrow">Editorial space</span>
           <h1 className="dash-h1">DevConnect</h1>
-          <p className="dash-tagline">Minimal publishing for developers — write, comment, like.</p>
+          <p className="dash-tagline">A space to share what you’re creating and learning.</p>
         </div>
         <div className="dash-counters">
           <div className="dash-counter">
@@ -128,7 +128,7 @@ function DashboardPage() {
         {!loading && !error && posts.length === 0 && (
           <div className="empty-state">
             <h3>No posts yet</h3>
-            <p>Be the first — write something from the Write screen.</p>
+            <p>Be the first write something from the Write screen.</p>
           </div>
         )}
         {posts.map((post) => (
