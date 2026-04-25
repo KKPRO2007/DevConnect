@@ -1,9 +1,27 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import PostCard from "../components/PostCard";
-import { getPosts } from "../lib/api";
+import { getPosts, getUserStats, getUsers } from "../lib/api";
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function getInitials(name = "") {
+  return (
+    name.trim().split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?"
+  );
+}
 
 function DashboardPage() {
   const [posts, setPosts] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -11,12 +29,19 @@ function DashboardPage() {
   useEffect(() => {
     let ignore = false;
 
-    async function loadPosts() {
+    async function loadData() {
       try {
         setLoading(true);
-        const data = await getPosts(search);
+        const [postsData, statsData, usersData] = await Promise.all([
+          getPosts(search),
+          getUserStats(),
+          getUsers(),
+        ]);
+
         if (!ignore) {
-          setPosts(data.posts || []);
+          setPosts(postsData.posts || []);
+          setTotalUsers(statsData.totalUsers || 0);
+          setUsers(usersData.users || []);
           setError("");
         }
       } catch (err) {
@@ -30,52 +55,80 @@ function DashboardPage() {
       }
     }
 
-    loadPosts();
-    return () => {
-      ignore = true;
-    };
+    loadData();
+    return () => { ignore = true; };
   }, [search]);
 
   return (
-    <main className="page">
-      <section className="hero-panel">
-        <div className="hero-copy">
-          <p className="label">Black edition</p>
-          <h1>Quiet, sharp, developer-focused publishing.</h1>
-          <p className="hero-text">
-            DevConnect keeps the interface minimal, lets content breathe, and
-            still gives you auth, writing, comments, likes, and search.
-          </p>
+    <main className="page dashboard-page">
+      <div className="dash-header">
+        <div className="dash-title-block">
+          <span className="eyebrow">Editorial space</span>
+          <h1 className="dash-h1">DevConnect</h1>
+          <p className="dash-tagline">Minimal publishing for developers — write, comment, like.</p>
         </div>
-
-        <div className="stat-stack">
-          <div className="metric-card">
+        <div className="dash-counters">
+          <div className="dash-counter">
+            <strong>{loading ? "-" : posts.length}</strong>
             <span>Posts</span>
-            <strong>{posts.length}</strong>
           </div>
-          <div className="metric-card">
-            <span>Style</span>
-            <strong>Dark Mono</strong>
+          <div className="dash-counter-sep" />
+          <div className="dash-counter">
+            <strong>{loading ? "-" : totalUsers}</strong>
+            <span>Writers</span>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="toolbar">
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search posts by title or content"
-        />
-      </section>
+      {users.length > 0 && (
+        <div className="writers-bar">
+          <span className="writers-bar-label">Writers</span>
+          <div className="writers-chips-track">
+            {users.map((user) => (
+              <Link key={user.id} to={`/users/${user.id}`} className="writer-chip">
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.name} className="writer-chip-avatar" />
+                ) : (
+                  <div className="writer-chip-avatar writer-chip-fallback">
+                    {getInitials(user.name)}
+                  </div>
+                )}
+                <span className="writer-chip-name">{user.name}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
-      {loading && <p className="state-text">Loading posts...</p>}
-      {error && <p className="state-text error">{error}</p>}
+      <div className="dash-filter-row">
+        <div className="search-wrap dash-search-wrap">
+          <SearchIcon />
+          <input
+            className="search-input"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search posts..."
+          />
+        </div>
+        {!loading && (
+          <span className="section-label" style={{ whiteSpace: "nowrap", flexShrink: 0 }}>
+            {posts.length} {posts.length === 1 ? "post" : "posts"}
+          </span>
+        )}
+      </div>
 
-      <section className="post-list">
-        {!loading && !posts.length && !error && (
-          <div className="empty-panel">
-            <h2>No posts yet</h2>
-            <p>Create the first story from the write screen after login.</p>
+      {loading && (
+        <div className="status-box shimmer" style={{ marginBottom: 14 }}>Loading...</div>
+      )}
+      {error && (
+        <div className="error-box" style={{ marginBottom: 14 }}>{error}</div>
+      )}
+
+      <section className="post-grid">
+        {!loading && !error && posts.length === 0 && (
+          <div className="empty-state">
+            <h3>No posts yet</h3>
+            <p>Be the first — write something from the Write screen.</p>
           </div>
         )}
         {posts.map((post) => (

@@ -1,4 +1,25 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function getApiUrl() {
+  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
+  if (configuredUrl) {
+    return configuredUrl.replace(/\/+$/, "");
+  }
+
+  if (typeof window !== "undefined") {
+    const { hostname, origin } = window.location;
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://localhost:5000/api";
+    }
+
+    console.warn(
+      "VITE_API_URL is not set. Configure it in Vercel project settings to point to your deployed backend."
+    );
+    return "/api";
+  }
+
+  return "http://localhost:5000/api";
+}
+
+const API_URL = getApiUrl();
 
 function buildHeaders(token, hasBody = false) {
   const headers = {};
@@ -15,7 +36,14 @@ function buildHeaders(token, hasBody = false) {
 }
 
 async function request(path, options = {}) {
-  const response = await fetch(`${API_URL}${path}`, options);
+  let response;
+
+  try {
+    response = await fetch(`${API_URL}${path}`, options);
+  } catch (error) {
+    throw new Error("Server is unavailable right now. Please try again.");
+  }
+
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -25,10 +53,13 @@ async function request(path, options = {}) {
   return data;
 }
 
-export function getPosts(search = "") {
+export function getPosts(search = "", options = {}) {
   const params = new URLSearchParams();
   if (search) {
     params.set("search", search);
+  }
+  if (options.author) {
+    params.set("author", options.author);
   }
 
   const query = params.toString() ? `?${params.toString()}` : "";
@@ -37,6 +68,18 @@ export function getPosts(search = "") {
 
 export function getPost(id) {
   return request(`/posts/${id}`);
+}
+
+export function getUserStats() {
+  return request("/users/stats");
+}
+
+export function getUsers() {
+  return request("/users");
+}
+
+export function getUserProfile(id) {
+  return request(`/users/${id}`);
 }
 
 export function registerUser(payload) {

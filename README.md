@@ -3,7 +3,7 @@
 Fullstack developer blog platform with:
 
 - `backend/`: Node.js, Express, MongoDB, Mongoose, JWT auth, REST API, EJS demo views
-- `frontend/`: React + Vite app styled as a black-and-white dark UI for Vercel
+- `frontend/`: React + Vite app with a clean black-and-white UI for Vercel
 
 ## Features
 
@@ -104,6 +104,7 @@ Frontend runs on `http://localhost:5173`.
 - Build command: `npm run build`
 - Output directory: `dist`
 - Add `VITE_API_URL=https://your-render-backend.onrender.com/api`
+- If you do not set `VITE_API_URL`, the frontend uses `http://localhost:5000/api` on local development and `/api` on deployed non-local hosts
 
 `frontend/vercel.json` handles SPA routing.
 
@@ -112,3 +113,4 @@ Frontend runs on `http://localhost:5173`.
 - The backend also includes EJS pages for learning SSR at `/`, `/login`, `/register`, and `/posts/:id/view`
 - For production, keep `JWT_SECRET` long and private
 - MongoDB Atlas is recommended for deployment
+- Registered users are stored in MongoDB, and the frontend keeps the token and user profile in `localStorage` so login survives refreshes

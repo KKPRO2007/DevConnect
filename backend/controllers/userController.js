@@ -3,6 +3,36 @@ const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const sanitizeUser = require("../utils/sanitizeUser");
 
+const getUserStats = catchAsync(async (req, res) => {
+  const totalUsers = await User.countDocuments();
+
+  res.status(200).json({
+    success: true,
+    message: "User stats fetched",
+    totalUsers
+  });
+});
+
+const getPublicUsers = catchAsync(async (req, res) => {
+  const users = await User.find()
+    .select("name email bio avatarUrl createdAt")
+    .sort({ createdAt: -1 })
+    .limit(12);
+
+  res.status(200).json({
+    success: true,
+    message: "Users fetched",
+    users: users.map((user) => ({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      bio: user.bio,
+      avatarUrl: user.avatarUrl,
+      createdAt: user.createdAt
+    }))
+  });
+});
+
 const getUserProfile = catchAsync(async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
 
@@ -54,6 +84,8 @@ const updateUserProfile = catchAsync(async (req, res) => {
 });
 
 module.exports = {
+  getUserStats,
+  getPublicUsers,
   getUserProfile,
   updateUserProfile
 };

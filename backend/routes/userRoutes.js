@@ -6,6 +6,8 @@ const validateObjectId = require("../middlewares/validateObjectId");
 
 const router = express.Router();
 
+router.get("/stats", userController.getUserStats);
+router.get("/", userController.getPublicUsers);
 router.get("/:id", validateObjectId("id"), userController.getUserProfile);
 router.put("/:id", protect, validateObjectId("id"), userController.updateUserProfile);
 

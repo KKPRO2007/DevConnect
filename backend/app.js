@@ -14,9 +14,13 @@ const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 
+function normalizeOrigin(origin = "") {
+  return origin.trim().replace(/\/+$/, "");
+}
+
 const allowedOrigins = (process.env.CLIENT_URL || "")
   .split(",")
-  .map((origin) => origin.trim())
+  .map((origin) => normalizeOrigin(origin))
   .filter(Boolean);
 
 app.set("view engine", "ejs");
@@ -27,7 +31,13 @@ app.use(morgan("dev"));
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      const normalizedOrigin = normalizeOrigin(origin);
+
+      if (
+        !origin ||
+        allowedOrigins.length === 0 ||
+        allowedOrigins.includes(normalizedOrigin)
+      ) {
         return callback(null, true);
       }
 
