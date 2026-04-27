@@ -29,24 +29,22 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(morgan("dev"));
-app.use(
-  cors({
-    origin(origin, callback) {
-      const normalizedOrigin = normalizeOrigin(origin);
+if (allowedOrigins.length > 0) {
+  app.use(
+    cors({
+      origin(origin, callback) {
+        const normalizedOrigin = normalizeOrigin(origin);
 
-      if (
-        !origin ||
-        allowedOrigins.length === 0 ||
-        allowedOrigins.includes(normalizedOrigin)
-      ) {
-        return callback(null, true);
-      }
+        if (!origin || allowedOrigins.includes(normalizedOrigin)) {
+          return callback(null, true);
+        }
 
-      return callback(new Error("CORS origin not allowed"));
-    },
-    credentials: true
-  })
-);
+        return callback(new Error("CORS origin not allowed"));
+      },
+      credentials: true
+    })
+  );
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

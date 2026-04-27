@@ -1,9 +1,8 @@
 # DevConnect
 
-Fullstack developer blog platform with:
+Developer blog platform served from Express + EJS on Render:
 
 - `backend/`: Node.js, Express, MongoDB, Mongoose, JWT auth, REST API, and EJS pages
-- `frontend/`: legacy React app kept in the repo, but the main app now renders from EJS
 
 ## Features
 
@@ -31,7 +30,6 @@ DevConnect/
 2. Set:
    - `MONGODB_URI`
    - `JWT_SECRET`
-   - `CLIENT_URL`
 3. Install and run:
 
 ```bash
@@ -78,13 +76,13 @@ Backend runs on `http://localhost:5000`.
 - Build command: `npm install`
 - Start command: `npm start`
 - Add env vars from `backend/.env.example`
-- Set `CLIENT_URL` if you still use a separate frontend origin for API access
 
 `render.yaml` is included for convenience.
 
 ## Notes
 
 - The main UI is now served by the backend at `/`, `/login`, `/register`, `/profile`, `/create-post`, `/users/:id`, and `/posts/:id`
+- The Render URL is the only URL you need for webpages and API
 - For production, keep `JWT_SECRET` long and private
 - MongoDB Atlas is recommended for deployment
 - Registered users are stored in MongoDB, and the server keeps auth in an `httpOnly` cookie for the EJS flow

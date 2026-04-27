@@ -1,26 +1,64 @@
-function getApiUrl() {
-  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
-  if (configuredUrl) {
-    const normalized = configuredUrl.replace(/\/+$/, "");
-    return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+function normalizeApiUrl(url) {
+  const normalized = url.replace(/\/+$/, "");
+  return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+}
+
+function getHostname(url) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function getApiConfigError(configuredUrl) {
+  if (!configuredUrl) {
+    return "API is not configured. Set VITE_API_URL to your Render backend URL (for example: https://your-app.onrender.com).";
   }
 
   if (typeof window !== "undefined") {
-    const { hostname, origin } = window.location;
+    const apiHostname = getHostname(configuredUrl);
+    const appHostname = window.location.hostname;
+
+    if (apiHostname && appHostname && apiHostname === appHostname) {
+      return "VITE_API_URL is pointing to the frontend domain. Set it to your Render backend URL (for example: https://your-app.onrender.com).";
+    }
+  }
+
+  return "API request could not be created due to an invalid VITE_API_URL value.";
+}
+
+function getApiUrl() {
+  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
+  if (configuredUrl) {
+    const normalizedUrl = normalizeApiUrl(configuredUrl);
+
+    if (typeof window !== "undefined") {
+      const apiHostname = getHostname(normalizedUrl);
+      const appHostname = window.location.hostname;
+
+      if (apiHostname && appHostname && apiHostname === appHostname) {
+        return null;
+      }
+    }
+
+    return normalizedUrl;
+  }
+
+  if (typeof window !== "undefined") {
+    const { hostname } = window.location;
     if (hostname === "localhost" || hostname === "127.0.0.1") {
       return "http://localhost:5000/api";
     }
 
-    console.warn(
-      "VITE_API_URL is not set. Configure it in Vercel project settings to point to your deployed backend."
-    );
-    return "/api";
+    return null;
   }
 
   return "http://localhost:5000/api";
 }
 
 const API_URL = getApiUrl();
+const API_CONFIG_ERROR = getApiConfigError(import.meta.env.VITE_API_URL?.trim());
 
 function buildHeaders(token, hasBody = false) {
   const headers = {};
@@ -37,6 +75,10 @@ function buildHeaders(token, hasBody = false) {
 }
 
 async function request(path, options = {}) {
+  if (!API_URL) {
+    throw new Error(API_CONFIG_ERROR);
+  }
+
   let response;
 
   try {
