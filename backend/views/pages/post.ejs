@@ -8,63 +8,105 @@
   </head>
   <body>
     <%- include("../partials/navbar") %>
-    <main class="container">
+    <main class="page-detail">
       <% if (!post) { %>
-        <section class="card">
-          <h1>Post not found</h1>
+        <section class="feature-post">
+          <div class="error-box">Post not found</div>
         </section>
       <% } else { %>
-        <article class="card post-full">
-          <p class="meta">By <a href="/users/<%= post.author ? post.author._id : "" %>"><%= post.author ? post.author.name : "Unknown" %></a></p>
+        <% const likedByUser = Boolean(currentUser && post.likes && post.likes.some(function(id) { return id.toString() === currentUser._id.toString(); })); %>
+        <article class="feature-post">
+          <span class="eyebrow">Post</span>
           <h1><%= post.title %></h1>
+          <div class="post-meta-row">
+            <span class="post-meta-item">
+              <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2" />
+                <path d="M2 12c0-2.2 2.2-4 5-4s5 1.8 5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+              </svg>
+              <%= post.author ? post.author.name : 'Unknown author' %>
+            </span>
+            <span class="post-meta-item">
+              <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="1.5" y="2.5" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.2" />
+                <path d="M1.5 6h11" stroke="currentColor" stroke-width="1.2" />
+                <path d="M5 1v3M9 1v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+              </svg>
+              <%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %>
+            </span>
+            <span class="post-meta-item">
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M8 13.5S1.5 9.5 1.5 5.5a3 3 0 015.6-1.5h1.8A3 3 0 0114.5 5.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+              </svg>
+              <%= post.likes ? post.likes.length : 0 %> likes
+            </span>
+          </div>
           <% if (post.excerpt) { %>
-            <p class="lead-copy"><%= post.excerpt %></p>
+            <p class="post-excerpt-box"><%= post.excerpt %></p>
           <% } %>
-          <p><%= post.content %></p>
+          <p class="post-content-body"><%= post.content %></p>
           <% if (post.tags && post.tags.length) { %>
-            <div class="tag-row">
+            <div class="chip-strip">
               <% post.tags.forEach(function(tag) { %>
-                <span class="tag-chip"><%= tag %></span>
+                <span class="chip"><%= tag %></span>
               <% }) %>
             </div>
+          <% } %>
+
+          <% if (success) { %>
+            <div class="success-box" style="margin-bottom: 14px;"><%= success %></div>
+          <% } %>
+          <% if (error) { %>
+            <div class="error-box" style="margin-bottom: 14px;"><%= error %></div>
+          <% } %>
+
+          <% if (currentUser) { %>
+            <form action="/posts/<%= post._id %>/like" method="post">
+              <button type="submit" class="like-btn<%= likedByUser ? ' liked' : '' %>">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M8 13.5S1.5 9.5 1.5 5.5a3 3 0 015.6-1.5h1.8A3 3 0 0114.5 5.5C14.5 9.5 8 13.5 8 13.5z" <%= likedByUser ? 'fill="currentColor"' : 'fill="none"' %> stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+                </svg>
+                <%= likedByUser ? 'Unlike' : 'Like' %> post
+              </button>
+            </form>
           <% } %>
         </article>
 
-        <% if (success) { %>
-          <div class="notice success"><%= success %></div>
-        <% } %>
-        <% if (error) { %>
-          <div class="notice error"><%= error %></div>
-        <% } %>
-
-        <section class="two-col comments-layout">
-          <article class="card">
+        <section class="comment-panel">
+          <div class="panel-head">
             <h2>Comments</h2>
-            <% if (!comments.length) { %>
-              <p class="muted-copy">No comments yet. Start the conversation.</p>
-            <% } %>
-            <div class="stack">
-              <% comments.forEach(function(comment) { %>
-                <div class="comment-item">
-                  <p class="meta"><%= comment.author ? comment.author.name : "Unknown" %></p>
-                  <p><%= comment.content %></p>
-                </div>
-              <% }) %>
-            </div>
-          </article>
+            <span class="badge"><%= comments.length %></span>
+          </div>
 
-          <article class="card">
-            <h2>Add comment</h2>
-            <% if (currentUser) { %>
-              <form action="/posts/<%= post._id %>/comments" method="post" class="stack">
-                <textarea name="content" placeholder="Share your thoughts" required><%= commentDraft %></textarea>
-                <button type="submit">Post comment</button>
-              </form>
-            <% } else { %>
-              <p class="muted-copy">Login to comment on this post.</p>
-              <a class="button-link" href="/login">Go to login</a>
+          <% if (currentUser) { %>
+            <form action="/posts/<%= post._id %>/comments" method="post" class="comment-form">
+              <textarea class="comment-textarea" name="content" placeholder="Write a thoughtful reply..." rows="4" required><%= commentDraft %></textarea>
+              <button type="submit" class="btn-primary">Post comment</button>
+            </form>
+          <% } %>
+
+          <div class="comment-list">
+            <% if (!comments.length) { %>
+              <div class="status-box">No comments yet. Be first.</div>
             <% } %>
-          </article>
+            <% comments.forEach(function(comment) { %>
+              <article class="comment-card">
+                <p class="comment-body"><%= comment.content %></p>
+                <div class="comment-foot">
+                  <div class="comment-author">
+                    <div class="avatar"><%= (comment.author && comment.author.name ? comment.author.name : '?').split(' ').slice(0, 2).map(function(w) { return w[0] || ''; }).join('').toUpperCase() || '?' %></div>
+                    <%= comment.author ? comment.author.name : 'Unknown user' %>
+                  </div>
+                  <span class="comment-date"><%= new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+
+          <% if (!currentUser) { %>
+            <div class="status-box">Login to post a comment.</div>
+            <a class="btn-ghost" href="/login">Go to login</a>
+          <% } %>
         </section>
       <% } %>
     </main>

@@ -8,21 +8,41 @@
   </head>
   <body>
     <%- include("../partials/navbar") %>
-    <main class="container auth-page">
-      <section class="card">
+    <main class="page-auth">
+      <section class="auth-card">
+        <span class="eyebrow">Join</span>
         <h1>Create account</h1>
-        <p class="muted-copy">Start publishing from the server-rendered version of DevConnect.</p>
-        <% if (error) { %>
-          <div class="notice error"><%= error %></div>
-        <% } %>
-        <form action="/register" method="post" class="stack">
-          <input type="text" name="name" placeholder="Full name" value="<%= formValues.name %>" required />
-          <input type="email" name="email" placeholder="Email" value="<%= formValues.email %>" required />
-          <input type="password" name="password" placeholder="Password" required />
-          <input type="url" name="avatarUrl" placeholder="Avatar URL (optional)" value="<%= formValues.avatarUrl %>" />
-          <textarea name="bio" placeholder="Bio"><%= formValues.bio %></textarea>
-          <button type="submit">Register</button>
+        <p class="auth-desc">Register once, your session stays saved in the browser after refresh.</p>
+        <form action="/register" method="post" class="form-stack">
+          <div class="input-wrap">
+            <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2" />
+              <path d="M2 12c0-2.2 2.2-4 5-4s5 1.8 5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            <input class="field has-icon" type="text" name="name" placeholder="Full name" value="<%= formValues.name %>" required autocomplete="name" />
+          </div>
+          <div class="input-wrap">
+            <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="1.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+              <path d="M1.5 4.5L7 8l5.5-3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            <input class="field has-icon" type="email" name="email" placeholder="Email address" value="<%= formValues.email %>" required autocomplete="email" />
+          </div>
+          <div class="input-wrap">
+            <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2.5" y="6" width="9" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+              <path d="M4.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            <input class="field has-icon" type="password" name="password" placeholder="Password (min 6 characters)" required autocomplete="new-password" />
+          </div>
+          <input class="field" type="url" name="avatarUrl" placeholder="Avatar URL (optional)" value="<%= formValues.avatarUrl %>" />
+          <textarea class="field" name="bio" placeholder="Short bio"><%= formValues.bio %></textarea>
+          <% if (error) { %>
+            <div class="error-box"><%= error %></div>
+          <% } %>
+          <button type="submit" class="btn-primary">Register</button>
         </form>
+        <p class="auth-switch">Already have an account? <a href="/login">Sign in</a></p>
       </section>
     </main>
     <%- include("../partials/footer") %>

@@ -15,6 +15,9 @@ const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 
+// Render sits behind a proxy; trust it so secure/session behavior is correct in production.
+app.set("trust proxy", 1);
+
 function normalizeOrigin(origin = "") {
   return origin.trim().replace(/\/+$/, "");
 }
@@ -31,6 +34,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(morgan("dev"));
 if (allowedOrigins.length > 0) {
   app.use(
+    "/api",
     cors({
       origin(origin, callback) {
         const normalizedOrigin = normalizeOrigin(origin);

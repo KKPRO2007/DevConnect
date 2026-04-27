@@ -3,41 +3,68 @@ const Comment = require("../models/Comment");
 const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const buildPostQuery = require("../services/postQueryService");
-
-function isPageRequest(req) {
-  return !req.originalUrl.startsWith("/api/") && req.accepts("html");
-}
+const { isPageRequest, buildPageRedirect } = require("../utils/pageResponse");
 
 const createPost = catchAsync(async (req, res) => {
   const { title, content, excerpt, tags } = req.body;
+  const draftValues = {
+    title,
+    content,
+    excerpt,
+    tags: Array.isArray(tags) ? tags.join(",") : tags
+  };
 
   if (!title || !content) {
+    if (isPageRequest(req)) {
+      return res.redirect(
+        buildPageRedirect("/create-post", {
+          error: "Title and content are required",
+          formValues: draftValues
+        })
+      );
+    }
+
     throw new ApiError(400, "Title and content are required");
   }
 
-  const post = await Post.create({
-    title,
-    content,
-    excerpt: excerpt || content.slice(0, 140),
-    tags: Array.isArray(tags)
-      ? tags
-      : typeof tags === "string" && tags.trim()
-        ? tags.split(",").map((tag) => tag.trim()).filter(Boolean)
-        : [],
-    author: req.user._id
-  });
+  try {
+    const post = await Post.create({
+      title,
+      content,
+      excerpt: excerpt || content.slice(0, 140),
+      tags: Array.isArray(tags)
+        ? tags
+        : typeof tags === "string" && tags.trim()
+          ? tags.split(",").map((tag) => tag.trim()).filter(Boolean)
+          : [],
+      author: req.user._id
+    });
 
-  const populatedPost = await post.populate("author", "name email bio avatarUrl");
+    const populatedPost = await post.populate("author", "name email bio avatarUrl");
 
-  if (isPageRequest(req)) {
-    return res.redirect(`/posts/${post._id}?success=Post created successfully`);
+    if (isPageRequest(req)) {
+      return res.redirect(
+        buildPageRedirect(`/posts/${post._id}`, { success: "Post created successfully" })
+      );
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Post created successfully",
+      post: populatedPost
+    });
+  } catch (error) {
+    if (isPageRequest(req)) {
+      return res.redirect(
+        buildPageRedirect("/create-post", {
+          error: error.message,
+          formValues: draftValues
+        })
+      );
+    }
+
+    throw error;
   }
-
-  res.status(201).json({
-    success: true,
-    message: "Post created successfully",
-    post: populatedPost
-  });
 });
 
 const getAllPosts = catchAsync(async (req, res) => {
@@ -158,6 +185,14 @@ const toggleLikePost = catchAsync(async (req, res) => {
   }
 
   await post.save();
+
+  if (isPageRequest(req)) {
+    return res.redirect(
+      buildPageRedirect(`/posts/${post._id}`, {
+        success: existingLike ? "Post unliked" : "Post liked"
+      })
+    );
+  }
 
   res.status(200).json({
     success: true,

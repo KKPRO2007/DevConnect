@@ -2,10 +2,7 @@ const Comment = require("../models/Comment");
 const Post = require("../models/Post");
 const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
-
-function isPageRequest(req) {
-  return !req.originalUrl.startsWith("/api/") && req.accepts("html");
-}
+const { isPageRequest, buildPageRedirect } = require("../utils/pageResponse");
 
 const getCommentsByPost = catchAsync(async (req, res) => {
   const comments = await Comment.find({ post: req.params.postId })
@@ -21,12 +18,24 @@ const getCommentsByPost = catchAsync(async (req, res) => {
 
 const createComment = catchAsync(async (req, res) => {
   if (!req.body.content) {
+    if (isPageRequest(req)) {
+      return res.redirect(
+        buildPageRedirect(`/posts/${req.params.postId}`, {
+          error: "Comment content is required"
+        })
+      );
+    }
+
     throw new ApiError(400, "Comment content is required");
   }
 
   const post = await Post.findById(req.params.postId);
 
   if (!post) {
+    if (isPageRequest(req)) {
+      return res.redirect(buildPageRedirect("/", { error: "Post not found" }));
+    }
+
     throw new ApiError(404, "Post not found");
   }
 
@@ -39,7 +48,9 @@ const createComment = catchAsync(async (req, res) => {
   await comment.populate("author", "name email avatarUrl");
 
   if (isPageRequest(req)) {
-    return res.redirect(`/posts/${req.params.postId}?success=Comment added successfully`);
+    return res.redirect(
+      buildPageRedirect(`/posts/${req.params.postId}`, { success: "Comment added successfully" })
+    );
   }
 
   res.status(201).json({

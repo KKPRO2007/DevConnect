@@ -1,16 +1,28 @@
-<nav class="navbar">
-  <a href="/" class="brand">DevConnect</a>
-  <div class="nav-links">
-    <a href="/">Explore</a>
-    <% if (currentUser) { %>
-      <a href="/create-post">Write</a>
-      <a href="/profile">Profile</a>
+<header class="topbar">
+  <% const viewer = typeof currentUser !== 'undefined' ? currentUser : null; %>
+  <a href="/" class="brandmark">
+    <div class="brand-icon">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M10 2L3 6v8l7 4 7-4V6L10 2z" fill="black" stroke="black" stroke-width="1" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">DevConnect</span>
+      <span class="brand-sub">Stories &amp; ideas for builders</span>
+    </div>
+  </a>
+
+  <nav class="nav">
+    <a href="/" class="<%= pageTitle === 'DevConnect' ? 'active' : '' %>">Explore</a>
+    <% if (viewer) { %>
+      <a href="/create-post" class="<%= pageTitle === 'Create Post' ? 'active' : '' %>">Write</a>
+      <a href="/profile" class="<%= pageTitle === 'Your Profile' ? 'active' : '' %>">Profile</a>
       <form action="/logout" method="post" class="inline-form">
-        <button type="submit" class="link-button">Logout</button>
+        <button type="submit" class="nav-pill danger">Logout</button>
       </form>
     <% } else { %>
-      <a href="/login">Login</a>
-      <a href="/register">Register</a>
+      <a href="/login" class="<%= pageTitle === 'Login' ? 'active' : '' %>">Login</a>
+      <a href="/register" class="<%= pageTitle === 'Register' ? 'active' : '' %>">Register</a>
     <% } %>
-  </div>
-</nav>
+  </nav>
+</header>

@@ -8,47 +8,138 @@
   </head>
   <body>
     <%- include("../partials/navbar") %>
-    <main class="container stack-xl">
-      <section class="hero compact-hero">
-        <p class="eyebrow">Your space</p>
-        <h1><%= profileUser.name %></h1>
-        <p><%= profileUser.bio || "Add a short bio so people know what you care about." %></p>
+    <main class="page profile-page">
+      <section class="profile-topbar-card">
+        <div class="profile-topbar-main">
+          <% if (profileUser.avatarUrl) { %>
+            <img src="<%= profileUser.avatarUrl %>" alt="<%= profileUser.name %>" class="profile-topbar-avatar" />
+          <% } else { %>
+            <div class="profile-topbar-avatar profile-topbar-fallback"><%= (profileUser.name || '?').split(' ').slice(0, 2).map(function(w) { return w[0] || ''; }).join('').toUpperCase() || '?' %></div>
+          <% } %>
+
+          <div class="profile-topbar-copy">
+            <span class="eyebrow">Profile</span>
+            <h1 class="profile-topbar-title"><%= profileUser.name %></h1>
+            <p class="profile-topbar-meta"><%= profileUser.email %></p>
+            <p class="profile-topbar-bio"><%= profileUser.bio || 'Add a short bio so other readers understand what you write about.' %></p>
+          </div>
+        </div>
+
+        <div class="profile-topbar-stats">
+          <div class="profile-stat-box">
+            <span>Posts</span>
+            <strong><%= posts.length %></strong>
+          </div>
+        </div>
       </section>
 
       <% if (success) { %>
-        <div class="notice success"><%= success %></div>
+        <div class="success-box" style="margin-bottom: 14px;"><%= success %></div>
       <% } %>
       <% if (error) { %>
-        <div class="notice error"><%= error %></div>
+        <div class="error-box" style="margin-bottom: 14px;"><%= error %></div>
       <% } %>
 
-      <section class="two-col">
-        <article class="card">
-          <h2>Edit profile</h2>
-          <form action="/profile" method="post" class="stack">
-            <input type="text" name="name" placeholder="Full name" value="<%= formValues.name %>" required />
-            <input type="url" name="avatarUrl" placeholder="Avatar URL" value="<%= formValues.avatarUrl %>" />
-            <textarea name="bio" placeholder="Tell readers about yourself"><%= formValues.bio %></textarea>
-            <input type="password" name="password" placeholder="New password (optional)" minlength="6" />
-            <button type="submit">Save changes</button>
-          </form>
-        </article>
+      <section class="profile-content-grid">
+        <section class="profile-editor-card">
+          <div class="panel-head">
+            <h2>Edit details</h2>
+            <span class="badge">You</span>
+          </div>
 
-        <article class="card">
-          <h2>Your posts</h2>
+          <form action="/profile" method="post" class="profile-form-grid compact-form">
+            <div class="field-item">
+              <label class="field-label" for="p-name">Display name</label>
+              <div class="input-wrap">
+                <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2" />
+                  <path d="M2 12c0-2.2 2.2-4 5-4s5 1.8 5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                </svg>
+                <input id="p-name" class="field has-icon" type="text" name="name" placeholder="Your full name" value="<%= formValues.name %>" required />
+              </div>
+            </div>
+
+            <div class="field-item">
+              <label class="field-label" for="p-avatar">Avatar URL</label>
+              <div class="input-wrap">
+                <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M5.5 8.5l3-3M8 3.5h2.5V6M10.5 3.5L6 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M6 4H3.5A1.5 1.5 0 002 5.5v5A1.5 1.5 0 003.5 12h5A1.5 1.5 0 0010 10.5V8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                </svg>
+                <input id="p-avatar" class="field has-icon" type="url" name="avatarUrl" placeholder="https://example.com/photo.jpg" value="<%= formValues.avatarUrl %>" />
+              </div>
+            </div>
+
+            <div class="field-item">
+              <label class="field-label" for="p-bio">Bio</label>
+              <textarea id="p-bio" class="field profile-bio-field" name="bio" placeholder="Tell the community a little about yourself..." rows="4"><%= formValues.bio %></textarea>
+            </div>
+
+            <div class="field-item">
+              <label class="field-label" for="p-password">New password</label>
+              <div class="input-wrap">
+                <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="2.5" y="6" width="9" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+                  <path d="M4.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                </svg>
+                <input id="p-password" class="field has-icon" type="password" name="password" placeholder="Leave blank to keep current password" minlength="6" autocomplete="new-password" />
+              </div>
+            </div>
+
+            <div class="actions-row compact-actions">
+              <button type="submit" class="btn-primary">Save changes</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="profile-posts-card">
+          <div class="panel-head">
+            <h2>Your posts</h2>
+            <span class="badge"><%= posts.length %></span>
+          </div>
+
           <% if (!posts.length) { %>
-            <p class="muted-copy">You have not published anything yet.</p>
+            <div class="empty-state profile-empty-posts">
+              <h3>No posts yet</h3>
+              <p>Your published articles will appear here.</p>
+            </div>
           <% } else { %>
-            <div class="stack">
+            <div class="post-grid profile-post-grid">
               <% posts.forEach(function(post) { %>
-                <a class="list-link" href="/posts/<%= post._id %>">
-                  <strong><%= post.title %></strong>
-                  <span><%= post.excerpt || post.content.slice(0, 120) %></span>
-                </a>
+                <article class="post-card">
+                  <div class="card-top">
+                    <span class="card-eyebrow">Article</span>
+                    <span class="card-date"><%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                  </div>
+                  <h2 class="card-title"><%= post.title %></h2>
+                  <p class="card-excerpt"><%= post.excerpt || post.content.slice(0, 160) %></p>
+                  <div class="card-footer">
+                    <div class="card-author">
+                      <% if (post.author && post.author.avatarUrl) { %>
+                        <img src="<%= post.author.avatarUrl %>" alt="<%= post.author.name %>" class="avatar avatar-img" />
+                      <% } else { %>
+                        <div class="avatar"><%= (post.author && post.author.name ? post.author.name : '?').split(' ').slice(0, 2).map(function(w) { return w[0] || ''; }).join('').toUpperCase() || '?' %></div>
+                      <% } %>
+                      <span class="card-author-name"><%= post.author ? post.author.name : 'Unknown' %></span>
+                    </div>
+                    <div class="card-likes">
+                      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M8 13.5S1.5 9.5 1.5 5.5a3 3 0 015.6-1.5h1.8A3 3 0 0114.5 5.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+                      </svg>
+                      <span><%= post.likes ? post.likes.length : 0 %></span>
+                    </div>
+                  </div>
+                  <a href="/posts/<%= post._id %>" class="card-read-link">
+                    Read article
+                    <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </a>
+                </article>
               <% }) %>
             </div>
           <% } %>
-        </article>
+        </section>
       </section>
     </main>
     <%- include("../partials/footer") %>

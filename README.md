@@ -19,17 +19,17 @@ Developer blog platform served from Express + EJS on Render:
 ```txt
 DevConnect/
 ├── backend/
-├── frontend/
 ├── render.yaml
 └── README.md
 ```
 
 ## Backend Setup
 
-1. Copy [backend/.env.example](/d:/DevConnect/backend/.env.example) to `backend/.env`
+1. Create `backend/.env`
 2. Set:
    - `MONGODB_URI`
    - `JWT_SECRET`
+   - `CLIENT_URL` (optional; only needed if another origin will call `/api` directly)
 3. Install and run:
 
 ```bash
@@ -75,7 +75,11 @@ Backend runs on `http://localhost:5000`.
 - Use `backend` as the root directory
 - Build command: `npm install`
 - Start command: `npm start`
-- Add env vars from `backend/.env.example`
+- Add env vars:
+   - `NODE_ENV=production`
+   - `MONGODB_URI`
+   - `JWT_SECRET`
+   - `CLIENT_URL` (optional; comma-separated list of allowed origins for `/api` CORS)
 
 `render.yaml` is included for convenience.
 

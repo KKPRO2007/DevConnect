@@ -32,14 +32,23 @@ async function renderHome(req, res, next) {
         }
       : {};
 
-    const posts = await Post.find(filters)
-      .populate("author", "name avatarUrl")
-      .sort({ createdAt: -1 })
-      .limit(12);
+    const [posts, users, totalUsers] = await Promise.all([
+      Post.find(filters)
+        .populate("author", "name avatarUrl")
+        .sort({ createdAt: -1 })
+        .limit(12),
+      User.find()
+        .select("name avatarUrl")
+        .sort({ createdAt: -1 })
+        .limit(12),
+      User.countDocuments()
+    ]);
 
     res.render("pages/dashboard", {
       pageTitle: "DevConnect",
       posts,
+      users,
+      totalUsers,
       search,
       ...getPageMessage(req)
     });
@@ -55,7 +64,9 @@ function renderLogin(req, res) {
 
   return res.render("pages/login", {
     pageTitle: "Login",
-    formValues: { email: "" },
+    formValues: {
+      email: req.query.email || ""
+    },
     ...getPageMessage(req)
   });
 }
@@ -67,7 +78,12 @@ function renderRegister(req, res) {
 
   return res.render("pages/register", {
     pageTitle: "Register",
-    formValues: { name: "", email: "", bio: "", avatarUrl: "" },
+    formValues: {
+      name: req.query.name || "",
+      email: req.query.email || "",
+      bio: req.query.bio || "",
+      avatarUrl: req.query.avatarUrl || ""
+    },
     ...getPageMessage(req)
   });
 }
@@ -79,7 +95,12 @@ function renderCreatePost(req, res) {
 
   res.render("pages/createPost", {
     pageTitle: "Create Post",
-    formValues: { title: "", excerpt: "", tags: "", content: "" },
+    formValues: {
+      title: req.query.title || "",
+      excerpt: req.query.excerpt || "",
+      tags: req.query.tags || "",
+      content: req.query.content || ""
+    },
     ...getPageMessage(req)
   });
 }
@@ -106,7 +127,7 @@ async function renderSinglePost(req, res, next) {
       pageTitle: post.title,
       post,
       comments,
-      commentDraft: "",
+      commentDraft: req.query.commentDraft || "",
       ...getPageMessage(req)
     });
   } catch (error) {
@@ -121,6 +142,7 @@ async function renderProfile(req, res, next) {
 
   try {
     const posts = await Post.find({ author: req.currentUser._id })
+      .populate("author", "name avatarUrl")
       .sort({ createdAt: -1 })
       .limit(20);
 
@@ -129,9 +151,9 @@ async function renderProfile(req, res, next) {
       profileUser: req.currentUser,
       posts,
       formValues: {
-        name: req.currentUser.name || "",
-        bio: req.currentUser.bio || "",
-        avatarUrl: req.currentUser.avatarUrl || ""
+        name: req.query.name || req.currentUser.name || "",
+        bio: req.query.bio || req.currentUser.bio || "",
+        avatarUrl: req.query.avatarUrl || req.currentUser.avatarUrl || ""
       },
       ...getPageMessage(req)
     });
@@ -148,7 +170,10 @@ async function renderPublicProfile(req, res, next) {
       throw new ApiError(404, "User not found");
     }
 
-    const posts = await Post.find({ author: user._id }).sort({ createdAt: -1 }).limit(20);
+    const posts = await Post.find({ author: user._id })
+      .populate("author", "name avatarUrl")
+      .sort({ createdAt: -1 })
+      .limit(20);
 
     res.render("pages/userProfile", {
       pageTitle: user.name,

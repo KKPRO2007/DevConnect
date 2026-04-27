@@ -25,6 +25,7 @@ router.post("/profile", protect, (req, res, next) => {
 }, userController.updateUserProfile);
 router.get("/users/:id", validateObjectId("id"), viewController.renderPublicProfile);
 router.get("/posts/:id", validateObjectId("id"), viewController.renderSinglePost);
+router.post("/posts/:id/like", protect, validateObjectId("id"), postController.toggleLikePost);
 router.post("/posts/:postId/comments", protect, validateObjectId("postId"), commentController.createComment);
 
 module.exports = router;

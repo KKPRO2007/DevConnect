@@ -8,21 +8,35 @@
   </head>
   <body>
     <%- include("../partials/navbar") %>
-    <main class="container auth-page">
-      <section class="card">
-        <h1>Login</h1>
-        <p class="muted-copy">Login to write posts, comment, and manage your profile.</p>
-        <% if (error) { %>
-          <div class="notice error"><%= error %></div>
-        <% } %>
+    <main class="page-auth">
+      <section class="auth-card">
+        <span class="eyebrow">Access</span>
+        <h1>Sign in</h1>
+        <p class="auth-desc">Login to write posts, like stories, and keep your profile saved across sessions.</p>
         <% if (success) { %>
-          <div class="notice success"><%= success %></div>
+          <div class="success-box"><%= success %></div>
         <% } %>
-        <form action="/login" method="post" class="stack">
-          <input type="email" name="email" placeholder="Email" value="<%= formValues.email %>" required />
-          <input type="password" name="password" placeholder="Password" required />
-          <button type="submit">Login</button>
+        <form action="/login" method="post" class="form-stack">
+          <div class="input-wrap">
+            <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="1.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+              <path d="M1.5 4.5L7 8l5.5-3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            <input class="field has-icon" type="email" name="email" placeholder="Email address" value="<%= formValues.email %>" required autocomplete="email" />
+          </div>
+          <div class="input-wrap">
+            <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2.5" y="6" width="9" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+              <path d="M4.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            <input class="field has-icon" type="password" name="password" placeholder="Password" required autocomplete="current-password" />
+          </div>
+          <% if (error) { %>
+            <div class="error-box"><%= error %></div>
+          <% } %>
+          <button type="submit" class="btn-primary">Login</button>
         </form>
+        <p class="auth-switch">New here? <a href="/register">Create an account</a></p>
       </section>
     </main>
     <%- include("../partials/footer") %>

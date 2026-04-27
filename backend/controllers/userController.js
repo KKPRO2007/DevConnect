@@ -2,10 +2,7 @@ const User = require("../models/User");
 const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const sanitizeUser = require("../utils/sanitizeUser");
-
-function isPageRequest(req) {
-  return !req.originalUrl.startsWith("/api/") && req.accepts("html");
-}
+const { isPageRequest, buildPageRedirect } = require("../utils/pageResponse");
 
 const getUserStats = catchAsync(async (req, res) => {
   const totalUsers = await User.countDocuments();
@@ -52,7 +49,22 @@ const getUserProfile = catchAsync(async (req, res) => {
 });
 
 const updateUserProfile = catchAsync(async (req, res) => {
+  const formValues = {
+    name: req.body.name,
+    bio: req.body.bio,
+    avatarUrl: req.body.avatarUrl
+  };
+
   if (req.user._id.toString() !== req.params.id) {
+    if (isPageRequest(req)) {
+      return res.redirect(
+        buildPageRedirect("/profile", {
+          error: "You can only update your own profile",
+          formValues
+        })
+      );
+    }
+
     throw new ApiError(403, "You can only update your own profile");
   }
 
@@ -69,6 +81,15 @@ const updateUserProfile = catchAsync(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (!user) {
+    if (isPageRequest(req)) {
+      return res.redirect(
+        buildPageRedirect("/profile", {
+          error: "User not found",
+          formValues
+        })
+      );
+    }
+
     throw new ApiError(404, "User not found");
   }
 
@@ -81,7 +102,7 @@ const updateUserProfile = catchAsync(async (req, res) => {
   await user.save();
 
   if (isPageRequest(req)) {
-    return res.redirect("/profile?success=Profile updated successfully");
+    return res.redirect(buildPageRedirect("/profile", { success: "Profile updated successfully" }));
   }
 
   res.status(200).json({

@@ -8,19 +8,47 @@
   </head>
   <body>
     <%- include("../partials/navbar") %>
-    <main class="container auth-page">
-      <section class="card">
-        <h1>Create post</h1>
-        <p class="muted-copy">Publish directly from the EJS app. Title and content are required.</p>
-        <% if (error) { %>
-          <div class="notice error"><%= error %></div>
-        <% } %>
-        <form action="/create-post" method="post" class="stack">
-          <input type="text" name="title" placeholder="Title" value="<%= formValues.title %>" required />
-          <input type="text" name="excerpt" placeholder="Short excerpt" value="<%= formValues.excerpt %>" />
-          <input type="text" name="tags" placeholder="Tags (comma separated)" value="<%= formValues.tags %>" />
-          <textarea name="content" placeholder="Write your post" required><%= formValues.content %></textarea>
-          <button type="submit">Publish post</button>
+    <main class="page-create">
+      <section class="editor-shell">
+        <span class="eyebrow">Write</span>
+        <h1>Publish a post</h1>
+        <p class="editor-desc">Draft something sharp, add a short summary, tag it, and publish to the feed.</p>
+        <div class="divider"></div>
+        <form action="/create-post" method="post">
+          <div class="field-group">
+            <div class="field-item">
+              <label class="field-label" for="post-title">Title</label>
+              <input id="post-title" class="field" type="text" name="title" placeholder="Give your post a compelling title" value="<%= formValues.title %>" required />
+            </div>
+
+            <div class="field-item">
+              <label class="field-label" for="post-excerpt">Excerpt</label>
+              <input id="post-excerpt" class="field" type="text" name="excerpt" placeholder="One-sentence summary shown on cards" value="<%= formValues.excerpt %>" />
+            </div>
+
+            <div class="field-item">
+              <label class="field-label" for="post-tags">Tags</label>
+              <input id="post-tags" class="field" type="text" name="tags" placeholder="react, javascript, tutorial" value="<%= formValues.tags %>" />
+              <span class="tag-hint">Separate tags with commas</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="field-item">
+              <label class="field-label" for="post-content">Content</label>
+              <textarea id="post-content" class="field content-field" name="content" placeholder="Write your post here..." rows="14" maxlength="10000" required><%= formValues.content %></textarea>
+              <span class="char-hint"><%= (formValues.content || '').length.toLocaleString() %> / 10,000 characters</span>
+            </div>
+          </div>
+
+          <% if (error) { %>
+            <div class="error-box" style="margin-top: 18px;"><%= error %></div>
+          <% } %>
+
+          <div class="actions-row">
+            <button type="submit" class="btn-primary">Publish post</button>
+            <a href="/" class="btn-ghost">Cancel</a>
+          </div>
         </form>
       </section>
     </main>
