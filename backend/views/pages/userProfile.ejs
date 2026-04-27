@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %></title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <%- include("../partials/navbar") %>
+    <main class="container stack-xl">
+      <section class="hero compact-hero">
+        <p class="eyebrow">Writer</p>
+        <h1><%= profileUser.name %></h1>
+        <p><%= profileUser.bio || "This writer has not added a bio yet." %></p>
+        <p class="meta"><%= profileUser.email %></p>
+      </section>
+
+      <section class="card">
+        <h2>Published posts</h2>
+        <% if (!posts.length) { %>
+          <p class="muted-copy">No posts yet.</p>
+        <% } else { %>
+          <div class="stack">
+            <% posts.forEach(function(post) { %>
+              <a class="list-link" href="/posts/<%= post._id %>">
+                <strong><%= post.title %></strong>
+                <span><%= post.excerpt || post.content.slice(0, 120) %></span>
+              </a>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+    </main>
+    <%- include("../partials/footer") %>
+  </body>
+</html>

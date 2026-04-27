@@ -1,8 +1,16 @@
 <nav class="navbar">
   <a href="/" class="brand">DevConnect</a>
   <div class="nav-links">
-    <a href="/login">Login</a>
-    <a href="/register">Register</a>
-    <a href="/create-post">Create Post</a>
+    <a href="/">Explore</a>
+    <% if (currentUser) { %>
+      <a href="/create-post">Write</a>
+      <a href="/profile">Profile</a>
+      <form action="/logout" method="post" class="inline-form">
+        <button type="submit" class="link-button">Logout</button>
+      </form>
+    <% } else { %>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+    <% } %>
   </div>
 </nav>

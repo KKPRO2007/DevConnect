@@ -9,6 +9,7 @@ const userRoutes = require("./routes/userRoutes");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const viewRoutes = require("./routes/viewRoutes");
+const attachCurrentUser = require("./middlewares/attachCurrentUser");
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
 
@@ -49,6 +50,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(attachCurrentUser);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({

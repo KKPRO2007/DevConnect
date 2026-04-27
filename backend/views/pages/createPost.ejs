@@ -11,12 +11,16 @@
     <main class="container auth-page">
       <section class="card">
         <h1>Create post</h1>
-        <p>This form posts directly to the protected API. Use a token-enabled client for full auth flow.</p>
-        <form class="stack">
-          <input type="text" placeholder="Title" />
-          <textarea placeholder="Content"></textarea>
-          <input type="text" placeholder="Tags (comma separated)" />
-          <button type="button">Create with API client</button>
+        <p class="muted-copy">Publish directly from the EJS app. Title and content are required.</p>
+        <% if (error) { %>
+          <div class="notice error"><%= error %></div>
+        <% } %>
+        <form action="/create-post" method="post" class="stack">
+          <input type="text" name="title" placeholder="Title" value="<%= formValues.title %>" required />
+          <input type="text" name="excerpt" placeholder="Short excerpt" value="<%= formValues.excerpt %>" />
+          <input type="text" name="tags" placeholder="Tags (comma separated)" value="<%= formValues.tags %>" />
+          <textarea name="content" placeholder="Write your post" required><%= formValues.content %></textarea>
+          <button type="submit">Publish post</button>
         </form>
       </section>
     </main>

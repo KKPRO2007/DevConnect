@@ -2,8 +2,8 @@
 
 Fullstack developer blog platform with:
 
-- `backend/`: Node.js, Express, MongoDB, Mongoose, JWT auth, REST API, EJS demo views
-- `frontend/`: React + Vite app with a clean black-and-white UI for Vercel
+- `backend/`: Node.js, Express, MongoDB, Mongoose, JWT auth, REST API, and EJS pages
+- `frontend/`: legacy React app kept in the repo, but the main app now renders from EJS
 
 ## Features
 
@@ -12,8 +12,8 @@ Fullstack developer blog platform with:
 - Blog CRUD with owner-only update/delete
 - Likes and comments
 - Search and pagination on posts
-- SSR demo pages with EJS on the backend
-- Deployment-ready structure for Render and Vercel
+- Server-rendered pages with EJS on the backend
+- Deployment-ready backend structure for Render
 
 ## Project Structure
 
@@ -41,20 +41,6 @@ npm run dev
 ```
 
 Backend runs on `http://localhost:5000`.
-
-## Frontend Setup
-
-1. Copy [frontend/.env.example](/d:/DevConnect/frontend/.env.example) to `frontend/.env`
-2. Set `VITE_API_URL=http://localhost:5000/api`
-3. Install and run:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Frontend runs on `http://localhost:5173`.
 
 ## API Endpoints
 
@@ -92,25 +78,13 @@ Frontend runs on `http://localhost:5173`.
 - Build command: `npm install`
 - Start command: `npm start`
 - Add env vars from `backend/.env.example`
-- Set `CLIENT_URL` to your Vercel frontend URL
+- Set `CLIENT_URL` if you still use a separate frontend origin for API access
 
 `render.yaml` is included for convenience.
 
-## Vercel Deployment
-
-- Import the repo into Vercel
-- Set the root directory to `frontend`
-- Framework preset: `Vite`
-- Build command: `npm run build`
-- Output directory: `dist`
-- Add `VITE_API_URL=https://your-render-backend.onrender.com/api`
-- If you do not set `VITE_API_URL`, the frontend uses `http://localhost:5000/api` on local development and `/api` on deployed non-local hosts
-
-`frontend/vercel.json` handles SPA routing.
-
 ## Notes
 
-- The backend also includes EJS pages for learning SSR at `/`, `/login`, `/register`, and `/posts/:id/view`
+- The main UI is now served by the backend at `/`, `/login`, `/register`, `/profile`, `/create-post`, `/users/:id`, and `/posts/:id`
 - For production, keep `JWT_SECRET` long and private
 - MongoDB Atlas is recommended for deployment
-- Registered users are stored in MongoDB, and the frontend keeps the token and user profile in `localStorage` so login survives refreshes
+- Registered users are stored in MongoDB, and the server keeps auth in an `httpOnly` cookie for the EJS flow

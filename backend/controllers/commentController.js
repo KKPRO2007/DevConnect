@@ -3,6 +3,10 @@ const Post = require("../models/Post");
 const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 
+function isPageRequest(req) {
+  return !req.originalUrl.startsWith("/api/") && req.accepts("html");
+}
+
 const getCommentsByPost = catchAsync(async (req, res) => {
   const comments = await Comment.find({ post: req.params.postId })
     .populate("author", "name email avatarUrl")
@@ -33,6 +37,10 @@ const createComment = catchAsync(async (req, res) => {
   });
 
   await comment.populate("author", "name email avatarUrl");
+
+  if (isPageRequest(req)) {
+    return res.redirect(`/posts/${req.params.postId}?success=Comment added successfully`);
+  }
 
   res.status(201).json({
     success: true,

@@ -3,6 +3,10 @@ const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const sanitizeUser = require("../utils/sanitizeUser");
 
+function isPageRequest(req) {
+  return !req.originalUrl.startsWith("/api/") && req.accepts("html");
+}
+
 const getUserStats = catchAsync(async (req, res) => {
   const totalUsers = await User.countDocuments();
 
@@ -75,6 +79,10 @@ const updateUserProfile = catchAsync(async (req, res) => {
   });
 
   await user.save();
+
+  if (isPageRequest(req)) {
+    return res.redirect("/profile?success=Profile updated successfully");
+  }
 
   res.status(200).json({
     success: true,

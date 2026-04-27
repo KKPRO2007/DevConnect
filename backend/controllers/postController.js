@@ -4,6 +4,10 @@ const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const buildPostQuery = require("../services/postQueryService");
 
+function isPageRequest(req) {
+  return !req.originalUrl.startsWith("/api/") && req.accepts("html");
+}
+
 const createPost = catchAsync(async (req, res) => {
   const { title, content, excerpt, tags } = req.body;
 
@@ -24,6 +28,10 @@ const createPost = catchAsync(async (req, res) => {
   });
 
   const populatedPost = await post.populate("author", "name email bio avatarUrl");
+
+  if (isPageRequest(req)) {
+    return res.redirect(`/posts/${post._id}?success=Post created successfully`);
+  }
 
   res.status(201).json({
     success: true,

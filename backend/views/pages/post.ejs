@@ -15,10 +15,57 @@
         </section>
       <% } else { %>
         <article class="card post-full">
-          <p class="meta">By <%= post.author ? post.author.name : "Unknown" %></p>
+          <p class="meta">By <a href="/users/<%= post.author ? post.author._id : "" %>"><%= post.author ? post.author.name : "Unknown" %></a></p>
           <h1><%= post.title %></h1>
+          <% if (post.excerpt) { %>
+            <p class="lead-copy"><%= post.excerpt %></p>
+          <% } %>
           <p><%= post.content %></p>
+          <% if (post.tags && post.tags.length) { %>
+            <div class="tag-row">
+              <% post.tags.forEach(function(tag) { %>
+                <span class="tag-chip"><%= tag %></span>
+              <% }) %>
+            </div>
+          <% } %>
         </article>
+
+        <% if (success) { %>
+          <div class="notice success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="notice error"><%= error %></div>
+        <% } %>
+
+        <section class="two-col comments-layout">
+          <article class="card">
+            <h2>Comments</h2>
+            <% if (!comments.length) { %>
+              <p class="muted-copy">No comments yet. Start the conversation.</p>
+            <% } %>
+            <div class="stack">
+              <% comments.forEach(function(comment) { %>
+                <div class="comment-item">
+                  <p class="meta"><%= comment.author ? comment.author.name : "Unknown" %></p>
+                  <p><%= comment.content %></p>
+                </div>
+              <% }) %>
+            </div>
+          </article>
+
+          <article class="card">
+            <h2>Add comment</h2>
+            <% if (currentUser) { %>
+              <form action="/posts/<%= post._id %>/comments" method="post" class="stack">
+                <textarea name="content" placeholder="Share your thoughts" required><%= commentDraft %></textarea>
+                <button type="submit">Post comment</button>
+              </form>
+            <% } else { %>
+              <p class="muted-copy">Login to comment on this post.</p>
+              <a class="button-link" href="/login">Go to login</a>
+            <% } %>
+          </article>
+        </section>
       <% } %>
     </main>
     <%- include("../partials/footer") %>

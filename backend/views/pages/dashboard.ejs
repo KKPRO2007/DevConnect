@@ -10,18 +10,38 @@
     <%- include("../partials/navbar") %>
     <main class="container">
       <section class="hero">
-        <p class="eyebrow">Server-side rendered preview</p>
-        <h1>Developer stories, shipped cleanly.</h1>
-        <p>Use the REST API for your real frontend and these EJS pages for learning SSR.</p>
+        <p class="eyebrow">Server-rendered community</p>
+        <h1>Developer stories, shipped with EJS.</h1>
+        <p>Read what builders are making, search by topic, and publish directly from the backend-rendered app.</p>
+      </section>
+
+      <% if (success) { %>
+        <div class="notice success"><%= success %></div>
+      <% } %>
+      <% if (error) { %>
+        <div class="notice error"><%= error %></div>
+      <% } %>
+
+      <section class="toolbar card">
+        <form action="/" method="get" class="search-row">
+          <input type="text" name="search" placeholder="Search posts" value="<%= search %>" />
+          <button type="submit">Search</button>
+        </form>
       </section>
 
       <section class="post-grid">
+        <% if (!posts.length) { %>
+          <article class="card">
+            <h2>No posts found</h2>
+            <p>Try a different keyword or create the first post for this topic.</p>
+          </article>
+        <% } %>
         <% posts.forEach(function(post) { %>
           <article class="card">
-            <p class="meta">By <%= post.author ? post.author.name : "Unknown" %></p>
+            <p class="meta">By <a href="/users/<%= post.author ? post.author._id : "" %>"><%= post.author ? post.author.name : "Unknown" %></a></p>
             <h2><%= post.title %></h2>
             <p><%= post.excerpt || post.content.slice(0, 140) %></p>
-            <a href="/posts/<%= post._id %>/view">Read more</a>
+            <a href="/posts/<%= post._id %>">Read more</a>
           </article>
         <% }) %>
       </section>

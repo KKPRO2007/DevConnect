@@ -11,11 +11,16 @@
     <main class="container auth-page">
       <section class="card">
         <h1>Create account</h1>
-        <form action="/api/auth/register" method="post" class="stack">
-          <input type="text" name="name" placeholder="Full name" required />
-          <input type="email" name="email" placeholder="Email" required />
+        <p class="muted-copy">Start publishing from the server-rendered version of DevConnect.</p>
+        <% if (error) { %>
+          <div class="notice error"><%= error %></div>
+        <% } %>
+        <form action="/register" method="post" class="stack">
+          <input type="text" name="name" placeholder="Full name" value="<%= formValues.name %>" required />
+          <input type="email" name="email" placeholder="Email" value="<%= formValues.email %>" required />
           <input type="password" name="password" placeholder="Password" required />
-          <textarea name="bio" placeholder="Bio"></textarea>
+          <input type="url" name="avatarUrl" placeholder="Avatar URL (optional)" value="<%= formValues.avatarUrl %>" />
+          <textarea name="bio" placeholder="Bio"><%= formValues.bio %></textarea>
           <button type="submit">Register</button>
         </form>
       </section>
