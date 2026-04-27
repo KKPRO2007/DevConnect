@@ -23,21 +23,6 @@ DevConnect/
 └── README.md
 ```
 
-## Backend Setup
-
-1. Create `backend/.env`
-2. Set:
-   - `MONGODB_URI`
-   - `JWT_SECRET`
-   - `CLIENT_URL` (optional; only needed if another origin will call `/api` directly)
-3. Install and run:
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
 Backend runs on `http://localhost:5000`.
 
 ## API Endpoints
